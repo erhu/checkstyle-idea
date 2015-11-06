@@ -1,5 +1,8 @@
 # CheckStyle-IDEA
 
+__[New Feature]__
+__Copy .checkstyle from eclipse workspace, the plugin can recognize those files which should be ignored.__
+---
 &copy; Copyright 2006-2015 CheckStyle-IDEA Contributors
 
 [Hosted on GitHub](https://github.com/jshiell/checkstyle-idea)
