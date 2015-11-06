@@ -3,6 +3,7 @@ package org.infernus.idea.checkstyle.actions;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.infernus.idea.checkstyle.CheckStylePlugin;
+import org.infernus.idea.checkstyle.ignore.IgnoreHookHelper;
 import org.infernus.idea.checkstyle.model.ConfigurationLocation;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,15 +16,16 @@ class ScanSourceRootsAction implements Runnable {
     private final ConfigurationLocation selectedOverride;
 
     ScanSourceRootsAction(@NotNull final Project project,
-                                 @NotNull final VirtualFile[] sourceRoots,
-                                 final ConfigurationLocation selectedOverride) {
+                          @NotNull final VirtualFile[] sourceRoots,
+                          final ConfigurationLocation selectedOverride) {
         this.project = project;
         this.sourceRoots = sourceRoots;
         this.selectedOverride = selectedOverride;
     }
 
     public void run() {
-        project.getComponent(CheckStylePlugin.class).checkFiles(flattenFiles(sourceRoots), selectedOverride);
+        project.getComponent(CheckStylePlugin.class).checkFiles(flattenFiles(sourceRoots), selectedOverride,
+                IgnoreHookHelper.getHookFromProject(project));
     }
 
     /**

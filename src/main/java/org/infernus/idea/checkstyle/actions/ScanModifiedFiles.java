@@ -12,6 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.infernus.idea.checkstyle.CheckStylePlugin;
 import org.infernus.idea.checkstyle.exception.CheckStylePluginException;
+import org.infernus.idea.checkstyle.ignore.IgnoreHookHelper;
 import org.infernus.idea.checkstyle.toolwindow.CheckStyleToolWindowPanel;
 
 import java.util.List;
@@ -38,7 +39,8 @@ public class ScanModifiedFiles extends BaseAction {
                     project).getToolWindow(CheckStyleToolWindowPanel.ID_TOOLWINDOW);
 
             final ChangeListManager changeListManager = ChangeListManager.getInstance(project);
-            project.getComponent(CheckStylePlugin.class).checkFiles(changeListManager.getAffectedFiles(), getSelectedOverride(toolWindow));
+            project.getComponent(CheckStylePlugin.class).checkFiles(changeListManager.getAffectedFiles(),
+                    getSelectedOverride(toolWindow), IgnoreHookHelper.getHookFromProject(project));
 
         } catch (Throwable e) {
             final CheckStylePluginException processed = CheckStylePluginException.wrap(e);

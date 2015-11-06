@@ -88,7 +88,8 @@ public class ScanFilesBeforeCheckinHandler extends CheckinHandler {
                     public void run(@NotNull final ProgressIndicator progressIndicator) {
                         progressIndicator.setText(message("handler.before.checkin.scan.in-progress"));
                         progressIndicator.setIndeterminate(true);
-                        scanResults.putAll(plugin.scanFiles(new ArrayList<>(checkinPanel.getVirtualFiles())));
+                        // todo check
+                        scanResults.putAll(plugin.scanFiles(new ArrayList<>(checkinPanel.getVirtualFiles()), null));
                     }
                 }.queue();
 

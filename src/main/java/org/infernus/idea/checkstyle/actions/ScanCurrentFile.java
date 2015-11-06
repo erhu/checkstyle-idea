@@ -9,6 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import org.infernus.idea.checkstyle.CheckStylePlugin;
+import org.infernus.idea.checkstyle.ignore.IgnoreHookHelper;
 import org.infernus.idea.checkstyle.toolwindow.CheckStyleToolWindowPanel;
 import org.infernus.idea.checkstyle.util.FileTypes;
 
@@ -42,7 +43,8 @@ public class ScanCurrentFile extends BaseAction {
                     final VirtualFile selectedFile = getSelectedFile(project);
                     if (selectedFile != null) {
                         project.getComponent(CheckStylePlugin.class).checkFiles(
-                                Arrays.asList(selectedFile), getSelectedOverride(toolWindow));
+                                Arrays.asList(selectedFile), getSelectedOverride(toolWindow),
+                                IgnoreHookHelper.getHookFromProject(project));
                     }
 
                 } catch (Throwable e) {

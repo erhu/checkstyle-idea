@@ -6,7 +6,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.infernus.idea.checkstyle.CheckStylePlugin;
 import org.infernus.idea.checkstyle.exception.CheckStylePluginException;
+import org.infernus.idea.checkstyle.ignore.IIgnoreHook;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -27,8 +29,9 @@ public class ScanFilesThread extends AbstractCheckerThread {
      */
     public ScanFilesThread(@NotNull final CheckStylePlugin checkStylePlugin,
                            @NotNull final List<VirtualFile> vFiles,
-                           @NotNull final Map<PsiFile, List<Problem>> results) {
-        super(checkStylePlugin, vFiles, null);
+                           @NotNull final Map<PsiFile, List<Problem>> results,
+                           @Nullable final IIgnoreHook ignoreHook) {
+        super(checkStylePlugin, vFiles, null, ignoreHook);
         this.setFileResults(results);
     }
 

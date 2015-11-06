@@ -9,6 +9,7 @@ import com.intellij.openapi.vfs.VirtualFileVisitor;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import org.infernus.idea.checkstyle.CheckStylePlugin;
+import org.infernus.idea.checkstyle.ignore.IIgnoreHook;
 import org.infernus.idea.checkstyle.model.ConfigurationLocation;
 import org.infernus.idea.checkstyle.toolwindow.CheckStyleToolWindowPanel;
 import org.jetbrains.annotations.NotNull;
@@ -29,16 +30,20 @@ public abstract class AbstractCheckerThread extends Thread {
 
     AbstractCheckerThread(@NotNull final CheckStylePlugin checkStylePlugin,
                           @NotNull final List<VirtualFile> virtualFiles,
-                          @Nullable final ConfigurationLocation overrideConfigLocation) {
+                          @Nullable final ConfigurationLocation overrideConfigLocation,
+                          @Nullable final IIgnoreHook ignoreHook) {
         this.plugin = checkStylePlugin;
         this.overrideConfigLocation = overrideConfigLocation;
-
         final PsiManager psiManager = PsiManager.getInstance(this.plugin.getProject());
         for (final VirtualFile virtualFile : virtualFiles) {
             buildFilesList(psiManager, virtualFile);
         }
 
         for (final PsiFile file : files) {
+            if (ignoreHook != null && ignoreHook.checkFile(file)) {
+                continue;
+            }
+
             final Module module = ModuleUtil.findModuleForPsiElement(file);
             Set<PsiFile> filesForModule = moduleToFiles.get(module);
             if (filesForModule == null) {

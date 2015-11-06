@@ -14,6 +14,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.infernus.idea.checkstyle.checker.*;
 import org.infernus.idea.checkstyle.exception.CheckStylePluginException;
+import org.infernus.idea.checkstyle.ignore.IIgnoreHook;
 import org.infernus.idea.checkstyle.model.ConfigurationLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -129,15 +130,15 @@ public final class CheckStylePlugin implements ProjectComponent {
     }
 
     public void checkFiles(final List<VirtualFile> files,
-                           final ConfigurationLocation overrideConfigLocation) {
+                           final ConfigurationLocation overrideConfigLocation,
+                           @Nullable final IIgnoreHook ignoreHook) {
         LOG.info("Scanning current file(s).");
 
         if (files == null || files.isEmpty()) {
             LOG.debug("No files provided.");
             return;
         }
-
-        final CheckFilesThread checkFilesThread = new CheckFilesThread(this, files, overrideConfigLocation);
+        final CheckFilesThread checkFilesThread = new CheckFilesThread(this, files, overrideConfigLocation, ignoreHook);
         checkFilesThread.setPriority(Thread.MIN_PRIORITY);
 
         synchronized (checksInProgress) {
@@ -172,14 +173,15 @@ public final class CheckStylePlugin implements ProjectComponent {
         }
     }
 
-    public Map<PsiFile, List<Problem>> scanFiles(@NotNull final List<VirtualFile> files) {
+    public Map<PsiFile, List<Problem>> scanFiles(@NotNull final List<VirtualFile> files,
+                                                 @Nullable final IIgnoreHook ignoreHook) {
         final Map<PsiFile, List<Problem>> results = new HashMap<>();
 
         if (files.isEmpty()) {
             return results;
         }
 
-        final ScanFilesThread scanFilesThread = new ScanFilesThread(this, files, results);
+        final ScanFilesThread scanFilesThread = new ScanFilesThread(this, files, results, ignoreHook);
 
         synchronized (checksInProgress) {
             checksInProgress.add(scanFilesThread);
