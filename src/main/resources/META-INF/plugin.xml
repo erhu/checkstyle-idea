@@ -1,4 +1,4 @@
-<idea-plugin version="2" url="https://github.com/jshiell/checkstyle-idea">
+<idea-plugin version="2" url="https://github.com/erhu/checkstyle-idea">
     <id>CheckStyle-IDEA</id>
     <name>CheckStyle-IDEA</name>
     <resource-bundle>org.infernus.idea.checkstyle.CheckStyleBundle</resource-bundle>
@@ -10,7 +10,7 @@
 </p>
         ]]>
     </description>
-    <version>4.21.0</version>
+    <version>4.21.2</version>
     <idea-version since-build="141.178"/>
     <vendor url="http://infernus.org/" email="james@infernus.org">James Shiell</vendor>
 
@@ -19,6 +19,7 @@
     <change-notes>
         <![CDATA[
 <ul>
+    <li>4.21.2: New: Support '.checkstyleignore'. [erhu.cn#qq.com]</li>
     <li>4.21.0: New: Updated to CheckStyle 6.12.1.</li>
     <li>4.20.1: Fixed: Inspection now checks for cancellation (#192).</li>
     <li>4.20.1: Fixed: Rules accessed via HTTP no longer use temporary files (#67).</li>
