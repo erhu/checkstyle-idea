@@ -27,9 +27,13 @@ public class IgnoreHookImpl implements IIgnoreHook {
     @Override
     public boolean checkFile(final PsiFile file) {
         try {
+            // dir ->                file:///Users/.../demo/src/com/example/demo
+            // projectRootPath ->           /Users/.../demo
             String dir = file.getViewProvider().getVirtualFile().getParent().toString();
+
             int srcIndex = dir.indexOf(projectRootPath) + projectRootPath.length() + 1;
-            // filePath like this 'src/com/demo/checkstyle/Demo.java'
+
+            // filePath like this 'src/com/example/demo/Demo.java'
             String filePath = dir.substring(srcIndex) + File.separator + file.getName();
             return ignoreFileList.contains(filePath);
         } catch (Exception e) {
