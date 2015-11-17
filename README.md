@@ -1,7 +1,12 @@
 # CheckStyle-IDEA
 
-__[New Feature]__
-__Copy .checkstyle from eclipse workspace, the plugin can recognize those files which should be ignored.__
+## New Feature
+### Ignore
+Support '.checkstyleignore' (like .gitignore).
+
+Add '.checkstyleignore' to project's basePath, or to module's basePath, or both.
+The plugin will ignore these file declared in '.checkstyleignore' when checking.
+
 ---
 &copy; Copyright 2006-2015 CheckStyle-IDEA Contributors
 
