@@ -11,11 +11,16 @@ import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * IgnoreHookHelper
@@ -31,41 +36,77 @@ public class IgnoreHookHelper {
     private static final String CHECKSTYLE_IGNORE_FILE = ".checkstyleignore";
 
     public static IIgnoreHook getHookFromProject(Project project) {
-        List<String> fileListIgnored = new ArrayList<>();
+        return new IgnoreHookImpl(checkDirItem(ignoreFiles(project)));
+    }
+
+    /**
+     * Read All '.checkstyleignore' files to get ignored files.
+     */
+    private static Set<String> ignoreFiles(Project project) {
+        Set<String> ignoredFiles = new HashSet<>();
 
         // Read '.checkstyleignore' in project's basePath
-        String projectBasePath = project.getBasePath();
-        String configOfProject = projectBasePath + File.separator + CHECKSTYLE_IGNORE_FILE;
-        readIgnoreFile(fileListIgnored, configOfProject);
+        String projectIgnoreConfigFile = project.getBasePath() + File.separator + CHECKSTYLE_IGNORE_FILE;
+        readIgnoreFile(ignoredFiles, projectIgnoreConfigFile);
 
         // Read every '.checkstyleignore' in modules
-        List<String> configsOfModule = configsOfModule(project);
-        readIgnoreFile(fileListIgnored, configsOfModule);
-        return new IgnoreHookImpl(projectBasePath, fileListIgnored);
+        List<String> modulesIgnoreConfigFiles = configsOfModule(project);
+        readIgnoreFile(ignoredFiles, modulesIgnoreConfigFiles);
+
+        return ignoredFiles;
+    }
+
+    /**
+     * Check ignoredFiles if it's a directory.
+     *
+     * @param ignoredFiles the ignored files in .checkstyleignore
+     */
+    private static Set<String> checkDirItem(final Set<String> ignoredFiles) {
+        Set<String> result = new HashSet<>();
+        ignoredFiles.forEach(it -> {
+            File file = new File(it);
+            if (file.exists()) {
+                if (file.isDirectory()) {
+                    try {
+                        Files.walkFileTree(Paths.get(it), new SimpleFileVisitor<Path>() {
+                            @Override
+                            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                                result.add(file.toFile().getAbsolutePath());
+                                return FileVisitResult.CONTINUE;
+                            }
+                        });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    result.add(it);
+                }
+            }
+        });
+        return result;
     }
 
     /**
      * Read configFile into ignoredFiles
      *
-     * @param ignoredFiles
+     * @param ignoredFiles the ignored files in .checkstyleignore
      * @param configFile
      */
-    private static void readIgnoreFile(List<String> ignoredFiles, String configFile) {
+    private static void readIgnoreFile(Set<String> ignoredFiles, String configFile) {
         Path path = Paths.get(configFile);
         try {
-            ignoredFiles.addAll(Files.readAllLines(path, StandardCharsets.UTF_8));
+            Files.readAllLines(path, StandardCharsets.UTF_8)
+                    .forEach(s -> ignoredFiles.add(path.toFile().getParent() + File.separator + s.trim()));
         } catch (IOException e) {
-            // ignore
+            e.printStackTrace();
         }
     }
 
     /**
      * Read configFiles into ignoredFiles
      */
-    private static void readIgnoreFile(List<String> ignoredFiles, List<String> configFiles) {
-        for (String path : configFiles) {
-            readIgnoreFile(ignoredFiles, path);
-        }
+    private static void readIgnoreFile(Set<String> ignoredFiles, List<String> configFiles) {
+        configFiles.forEach(it -> readIgnoreFile(ignoredFiles, it));
     }
 
     /**
@@ -109,7 +150,7 @@ public class IgnoreHookHelper {
             parser.parse(modulesConfigFile, handler);
 
         } catch (ParserConfigurationException | SAXException | IOException e) {
-            // ignore
+            e.printStackTrace();
         }
         return modulesPaths;
     }
