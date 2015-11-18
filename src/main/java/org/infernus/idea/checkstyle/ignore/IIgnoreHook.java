@@ -8,11 +8,12 @@ import com.intellij.psi.PsiFile;
  * Created by lisper on 15/11/6.
  */
 public interface IIgnoreHook {
+
     /**
      * Check if should ignore this file when scan.
      *
      * @param file
      * @return true if need ignore, false not.
      */
-    boolean checkFile(final PsiFile file);
+    boolean shouldIgnore(final PsiFile file);
 }

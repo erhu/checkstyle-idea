@@ -40,7 +40,7 @@ public abstract class AbstractCheckerThread extends Thread {
         }
 
         for (final PsiFile file : files) {
-            if (ignoreHook != null && ignoreHook.checkFile(file)) {
+            if (ignoreHook != null && ignoreHook.shouldIgnore(file)) {
                 continue;
             }
 

@@ -11,12 +11,9 @@ import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -61,25 +58,26 @@ public class IgnoreHookHelper {
      *
      * @param ignoredFiles the ignored files in .checkstyleignore
      */
-    private static Set<String> checkDirItem(final Set<String> ignoredFiles) {
-        Set<String> result = new HashSet<>();
+    private static Set<IgnoreItem> checkDirItem(final Set<String> ignoredFiles) {
+        Set<IgnoreItem> result = new HashSet<>();
         ignoredFiles.forEach(it -> {
             File file = new File(it);
             if (file.exists()) {
                 if (file.isDirectory()) {
-                    try {
-                        Files.walkFileTree(Paths.get(it), new SimpleFileVisitor<Path>() {
-                            @Override
-                            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                                result.add(file.toFile().getAbsolutePath());
-                                return FileVisitResult.CONTINUE;
-                            }
-                        });
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    result.add(new IgnoreItem(it, IgnoreType.DIR));
                 } else {
-                    result.add(it);
+                    result.add(new IgnoreItem(it, IgnoreType.FILE));
+                }
+            } else {
+                // match *.java
+                if (it.contains("*.")) {
+                    int lastStarIndex = it.lastIndexOf("*.");
+                    if (lastStarIndex + 2 < it.length()) {
+                        String type = it.substring(lastStarIndex + 1, it.length());
+                        IgnoreItem item = new IgnoreItem(type, IgnoreType.FILE_TYPE);
+                        item.extra = it.substring(0, lastStarIndex);
+                        result.add(item);
+                    }
                 }
             }
         });
