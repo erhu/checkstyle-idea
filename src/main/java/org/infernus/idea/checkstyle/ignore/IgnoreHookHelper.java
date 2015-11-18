@@ -64,9 +64,11 @@ public class IgnoreHookHelper {
             File file = new File(it);
             if (file.exists()) {
                 if (file.isDirectory()) {
-                    result.add(new IgnoreItem(it, IgnoreType.DIR));
+                    // if $it contains 'project//src/com/demo/...',
+                    // use file.getAbsolutePath() to get the right path.
+                    result.add(new IgnoreItem(file.getAbsolutePath(), IgnoreType.DIR));
                 } else {
-                    result.add(new IgnoreItem(it, IgnoreType.FILE));
+                    result.add(new IgnoreItem(file.getAbsolutePath(), IgnoreType.FILE));
                 }
             } else {
                 // match *.java
@@ -127,7 +129,10 @@ public class IgnoreHookHelper {
                         if (attr != null) {
                             for (int i = 0; i < attr.getLength(); i++) {
                                 if (ATTR_FILE_PATH.equalsIgnoreCase(attr.getQName(i))) {
-                                    String path = String.format("%s/%s", modulePath(attr.getValue(i)), CHECKSTYLE_IGNORE_FILE);
+                                    String path = String.format("%s%s%s",
+                                            modulePath(attr.getValue(i)),
+                                            File.separatorChar,
+                                            CHECKSTYLE_IGNORE_FILE);
                                     modulesPaths.add(path);
                                 }
                             }
@@ -136,8 +141,8 @@ public class IgnoreHookHelper {
                 }
 
                 private String modulePath(String path) {
-                    int firstSlashIndex = path.indexOf('/');
-                    int lastSlashIndex = path.lastIndexOf('/');
+                    int firstSlashIndex = path.indexOf(File.separatorChar);
+                    int lastSlashIndex = path.lastIndexOf(File.separatorChar);
                     if (firstSlashIndex == lastSlashIndex) {
                         return bathPath;
                     }
